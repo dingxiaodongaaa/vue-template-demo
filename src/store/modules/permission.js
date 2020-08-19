@@ -1,4 +1,7 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import {
+  asyncRoutes,
+  constantRoutes
+} from '@/router'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -22,7 +25,10 @@ export function filterAsyncRoutes(routes, roles) {
   const res = []
 
   routes.forEach(route => {
-    const tmp = { ...route }
+    // 对路由进行浅拷贝，注意 children 不会拷贝，因为不需要对 children 进行判断，所有可以直接使用
+    const tmp = {
+      ...route
+    }
     if (hasPermission(roles, tmp)) {
       if (tmp.children) {
         tmp.children = filterAsyncRoutes(tmp.children, roles)
@@ -36,6 +42,7 @@ export function filterAsyncRoutes(routes, roles) {
 
 const state = {
   routes: [],
+  menuRoutes: [],
   addRoutes: []
 }
 
@@ -43,11 +50,19 @@ const mutations = {
   SET_ROUTES: (state, routes) => {
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
+    // state.menuRoutes =  routes.filter((item) => {
+    //   if (item.index === getMenuIndex() ){
+    //     return item;
+    //   }
+    // })
+    state.menuRoutes = routes ? routes.concat(constantRoutes)[0].children : constantRoutes.concat(routes)[0].children
   }
 }
 
 const actions = {
-  generateRoutes({ commit }, roles) {
+  generateRoutes({
+    commit
+  }, roles) {
     return new Promise(resolve => {
       let accessedRoutes
       if (roles.includes('admin')) {
