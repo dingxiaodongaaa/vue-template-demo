@@ -1,9 +1,15 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+      auto-complete="on"
+      label-position="left"
+    >
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">运营管理平台</h3>
       </div>
 
       <el-form-item prop="username">
@@ -36,50 +42,85 @@
           auto-complete="on"
           @keyup.enter.native="handleLogin"
         />
-        <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
       </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
-
-      <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
-      </div>
-
+      <el-form-item label prop="captcha">
+        <el-input
+          v-model="loginForm.captcha"
+          placeholder="验证码"
+          prefix-icon="lj-icon-yanzhengma"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          style="float: left; width: 100%;"
+          @keyup.enter.native="handleLogin"
+        />
+        <div class="captcha_code">
+          <img ref="code" src @click="changeCode">
+        </div>
+      </el-form-item>
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin"
+      >登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
+// eslint-disable-next-line no-unused-vars
 import { validUsername } from '@/utils/validate'
+import { filterAsyncRouter } from '@/router/async'
+import { resetRouter } from '@/router/index'
 
 export default {
   name: 'Login',
   data() {
+    // 用户名验证
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
+      // if (!validUsername(value)) {
+      //   callback(new Error("Please enter the correct user name"));
+      // } else {
+      //   callback();
+      // }
+      callback()
     }
+    // 密码验证
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
+      // if (value.length < 5) {
+      //   callback(new Error("The password can not be less than 6 digits"));
+      // } else {
+      //   callback();
+      // }
+      callback()
+    }
+    // 验证码验证
+    const validateCaptcha = (rule, value, callback) => {
+      // if (value.length < 5) {
+      //   callback(new Error("The password can not be less than 6 digits"));
+      // } else {
+      //   callback();
+      // }
+      callback()
     }
     return {
       loginForm: {
         username: 'admin',
-        password: '111111'
+        password: '111111',
+        captcha: '',
+        uuid: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [
+          { required: true, trigger: 'blur', validator: validateUsername }
+        ],
+        password: [
+          { required: true, trigger: 'blur', validator: validatePassword }
+        ],
+        captcha: [
+          { required: true, trigger: 'blur', validator: validateCaptcha }
+        ]
       },
       loading: false,
       passwordType: 'password',
@@ -95,32 +136,78 @@ export default {
     }
   },
   methods: {
-    showPwd() {
-      if (this.passwordType === 'password') {
-        this.passwordType = ''
-      } else {
-        this.passwordType = 'password'
-      }
-      this.$nextTick(() => {
-        this.$refs.password.focus()
-      })
-    },
     handleLogin() {
+      // 密码加密
+      this.loginForm.encryptPassword = this.$getRsaCode(
+        this.loginForm.password
+      )
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
-            this.loading = false
-          }).catch(() => {
-            this.loading = false
-          })
+          this.$store
+            .dispatch('user/login', this.loginForm)
+            .then(data => {
+              // 调用store里user.js的login方法
+              // this.$router.push({ path: this.redirect || "/" });
+              // 获取权限列表
+              this.getRouteList(1)
+              this.loading = false
+            })
+            .catch(() => {
+              this.loading = false
+            })
         } else {
           console.log('error submit!!')
           return false
         }
       })
+    },
+    // 获取用户路由
+    getRouteList(id) {
+      var that = this
+      this.$store
+        .dispatch('user/getRouteListFn', id)
+        .then(res => {
+          // 存入state
+          that.$store.commit('permission/SET_ROUTES', res.obj.router)
+          // 存入缓存
+          sessionStorage.setItem('state', JSON.stringify(res.obj.router))
+          // 转换组件对象
+          var getRouter = filterAsyncRouter(res.obj.router)
+          // 清空之前的路由信息
+          resetRouter()
+          that.$router.addRoutes(getRouter)
+          that.$router.push('/')
+        })
+        .catch(() => {
+          this.loading = false
+        })
+    },
+    getCaptchaKey() {
+      const captchaKey = (function() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(
+          c
+        ) {
+          return (c === 'x'
+            ? (Math.random() * 16) | 0
+            : 'r&0x3' | '0x8'
+          ).toString(16)
+        })
+      })()
+      return captchaKey
+    },
+    changeCode() {
+      const captcha_key = this.getCaptchaKey()
+      // uuid
+      this.loginForm.uuid = captcha_key
+      this.$refs.code.setAttribute(
+        'src',
+        this.$api.url.dev + '/captcha.jpg?uuid=' + captcha_key
+      )
     }
+  },
+  mounted() {
+    // this.changeCode();
   }
 }
 </script>
@@ -129,8 +216,8 @@ export default {
 /* 修复input 背景不协调 和光标变色 */
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
-$bg:#283443;
-$light_gray:#fff;
+$bg: #283443;
+$light_gray: #fff;
 $cursor: #fff;
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
@@ -173,9 +260,9 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg: #2d3a4b;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 
 .login-container {
   min-height: 100%;
@@ -232,6 +319,13 @@ $light_gray:#eee;
     color: $dark_gray;
     cursor: pointer;
     user-select: none;
+  }
+  .captcha_code img {
+    width: 180px;
+    height: 45px;
+    position: absolute;
+    right: 1px;
+    top: 1px;
   }
 }
 </style>
