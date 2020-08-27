@@ -9,8 +9,7 @@ import store from './store'
 import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
-import JSEncrypt from 'jsencrypt'
-import api from './api/index'
+// import JSEncrypt from 'jsencrypt'
 import {
   filterAsyncRouter
 } from '@/router/async'
@@ -20,14 +19,14 @@ import {
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
 Vue.config.productionTip = false
-Vue.prototype.$api = api // 使用配置地址文件
-Vue.prototype.$getRsaCode = function(str) { // 注册方法
-  const pubKey = `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCEN0fhvEUjq8xoh4E7utJc/Drm2ZUoQNM/BGYBgkWBnlSOYdvs/5C5nUcwqQiC5tEFnqDoEYvUqPL5kZf6sL21SOlQKIFuPCcq14XgWatg5fSy3Gq2YZ2IUN+ARxPrdPVcAZTRdJCoOhSTED8lqLOOabZd0orai33wbM+NW0BVWQIDAQAB` // ES6 模板字符串 引用 rsa 公钥
-  const encryptStr = new JSEncrypt()
-  encryptStr.setPublicKey(pubKey) // 设置 加密公钥
-  const data = encryptStr.encrypt(str.toString()) // 进行加密
-  return data
-}
+// 登录密码加密，暂时不需要加密，屏蔽
+// Vue.prototype.$getRsaCode = function(str) { // 注册方法
+//   const pubKey = `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCEN0fhvEUjq8xoh4E7utJc/Drm2ZUoQNM/BGYBgkWBnlSOYdvs/5C5nUcwqQiC5tEFnqDoEYvUqPL5kZf6sL21SOlQKIFuPCcq14XgWatg5fSy3Gq2YZ2IUN+ARxPrdPVcAZTRdJCoOhSTED8lqLOOabZd0orai33wbM+NW0BVWQIDAQAB` // ES6 模板字符串 引用 rsa 公钥
+//   const encryptStr = new JSEncrypt()
+//   encryptStr.setPublicKey(pubKey) // 设置 加密公钥
+//   const data = encryptStr.encrypt(str.toString()) // 进行加密
+//   return data
+// }
 
 new Vue({
   router,
@@ -49,6 +48,8 @@ new Vue({
       this.$router.addRoutes(getRouter)
       // 然后强制更新当前组件
       this.$forceUpdate()
+      // 设置 user 图片
+      this.$store.commit('user/SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
     }
   },
   render: h => h(App)

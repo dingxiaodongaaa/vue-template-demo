@@ -23,9 +23,7 @@ service.interceptors.request.use(
       // 让请求携带token，['X-Token'] 是自定义key，请根据实际情况自行修改
       // config.headers['X-Token'] = getToken();
       // 临时设置一个登陆token
-      // config.headers['x-access-token'] = getToken();
-      config.headers.Authorization = 'Bearer ' + getToken()
-
+      config.headers['x-access-token'] = getToken()
     }
     return config
   },
@@ -42,8 +40,7 @@ service.interceptors.response.use(
   response => {
     const res = response.data
 
-    if (res.status !== 1) {
-      // if (res.code !== "8888") {
+    if (res.code !== '8888') {
       Message({
         message: res.msg || 'Error',
         type: 'error',
