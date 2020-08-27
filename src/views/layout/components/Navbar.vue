@@ -17,7 +17,7 @@
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
             <el-dropdown-item>
-              Home
+              首页
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item divided @click.native="logout">
@@ -59,7 +59,8 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      // 跳转到登录页面
+      this.$router.push(`/login`)
     }
   }
 }
@@ -70,7 +71,7 @@ export default {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: #fff;
+  background: #26415a;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
 
   .hamburger-container {
@@ -79,6 +80,7 @@ export default {
     float: left;
     cursor: pointer;
     transition: background .3s;
+    background-color: #2c4158;
     -webkit-tap-highlight-color:transparent;
 
     &:hover {
@@ -104,7 +106,7 @@ export default {
       padding: 0 8px;
       height: 100%;
       font-size: 18px;
-      color: #5a5e66;
+      color: #ffffff;
       vertical-align: text-bottom;
 
       &.hover-effect {
@@ -132,6 +134,7 @@ export default {
         }
 
         .el-icon-caret-bottom {
+          color: #ffffff;
           cursor: pointer;
           position: absolute;
           right: -20px;

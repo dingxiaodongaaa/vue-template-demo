@@ -1,5 +1,7 @@
 <template>
+  <!-- 判断 hidden -->
   <div v-if="!item.hidden">
+    <!-- 判断路由 -->
     <template
       v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow"
     >
@@ -9,16 +11,16 @@
           :class="{'submenu-title-noDropdown':!isNest}"
         >
           <item
-            :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)"
-            :title="onlyOneChild.meta.title"
+            :icon="onlyOneChild.meta[0].icon||(item.meta&&item.meta[0].icon)"
+            :title="onlyOneChild.meta[0].title"
           />
         </el-menu-item>
       </app-link>
     </template>
-
+    <!-- 多层菜单 -->
     <el-submenu v-else ref="subMenu" :index="resolvePath(item.path)" popper-append-to-body>
       <template slot="title">
-        <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta.title" />
+        <item v-if="item.meta" :icon="item.meta && item.meta.icon" :title="item.meta[0].title" />
       </template>
       <sidebar-item
         v-for="child in item.children"
@@ -66,6 +68,8 @@ export default {
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
+      if (children === null) children = []
+      if (!children || children.length < 0) return
       const showingChildren = children.filter((item) => {
         if (item.hidden) {
           return false
@@ -75,7 +79,6 @@ export default {
           return true
         }
       })
-
       // When there is only one child router, the child router is displayed by default
       if (showingChildren.length === 1) {
         return true

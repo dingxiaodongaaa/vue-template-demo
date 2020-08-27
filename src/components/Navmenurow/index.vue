@@ -4,13 +4,16 @@
       :default-active="activeIndex"
       class="el-menu-demo"
       mode="horizontal"
+      background-color="#2c4158"
+      text-color="#fff"
+      active-text-color="#ffd04b"
       @select="handleSelect"
     >
       <el-menu-item
         v-for="item in routes"
         :key="item.index"
         :index="item.index"
-      >{{ item.meta.title }}</el-menu-item>
+      >{{ item.meta[0].title }}</el-menu-item>
     </el-menu>
   </div>
 </template>
@@ -30,7 +33,8 @@ export default {
           return item
         }
       })
-      console.log(this.$store.state.permission)
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      this.activeIndex = showingChildren[0].index
       return showingChildren
     }
   },
