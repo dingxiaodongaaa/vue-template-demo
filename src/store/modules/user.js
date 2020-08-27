@@ -13,6 +13,7 @@ import {
 import {
   resetRouter
 } from '@/router'
+import { data } from 'autoprefixer'
 
 const getDefaultState = () => {
   return {
@@ -47,7 +48,7 @@ const actions = {
     // const { username, password, } = userInfo
     return new Promise((resolve, reject) => {
       login(userInfo).then(response => {
-        const dataRes = response.obj
+        const dataRes = response.data
 
         commit('SET_TOKEN', dataRes.token)
         setToken(dataRes.token)
@@ -93,75 +94,9 @@ const actions = {
     state
   }) {
     return new Promise((resolve, reject) => {
-      getRouter(1).then(response => {
-        response.obj.router = [{
-          index: '1',
-          path: '/',
-          component: 'layout/index',
-          alwaysShow: true,
-          redirect: '/parkLotInfoManage',
-          name: 'closeParkLot',
-          meta: {
-            title: '封闭停车场'
-          },
-          children: [{
-            index: '1-1',
-            path: 'parkLotInfoManage',
-            component: 'parkLotInfoManage/index',
-            name: 'parkLotInfoManage',
-            meta: {
-              title: '停车场信息管理', icon: 'user'
-            },
-            children: []
-          },
-          {
-            index: '1-2',
-            path: 'stateManagePath',
-            component: 'stateManage/index',
-            name: 'stateManage',
-            meta: {
-              title: '状态管理', icon: 'el-icon-s-help'
-            },
-            children: []
-          },
-          {
-            index: '1-3',
-            path: 'voiceBroadcastManagePatn',
-            component: 'voiceBroadcastManage/index',
-            name: 'voiceBroadcastManage',
-            meta: {
-              title: '语音播报管理', icon: 'user'
-            },
-            children: []
-          }
-          ]
-        },
-        {
-          index: '2',
-          path: '/',
-          component: 'layout/index',
-          alwaysShow: true,
-          redirect: '/parkChargePath',
-          name: 'accountRules',
-          meta: {
-            title: '计费规则'
-          },
-          children: [{
-            index: '2-1',
-            path: 'parkChargePath',
-            component: 'parkCharge/index',
-            name: 'parkCharge',
-            meta: {
-              title: '停车收费',
-              icon: 'el-icon-s-help'
-            },
-            children: []
-          }]
-        }
-        ]
-        // 存储一级导航的index,为切换菜单做准备
-        // setMenuIndex(response[0].index);
-        resolve(response)
+      getRouter().then(response => {
+        const { data } = response
+        resolve(data)
       }).catch(error => {
         reject(error)
       })
@@ -175,6 +110,8 @@ const actions = {
   }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
+        // 清除缓存的路由
+        sessionStorage.removeItem('state')
         removeToken() // must remove  token  first
         resetRouter()
         commit('RESET_STATE')

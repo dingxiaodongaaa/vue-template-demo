@@ -19,7 +19,7 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="请输入用户名"
           name="username"
           type="text"
           tabindex="1"
@@ -36,7 +36,7 @@
           ref="password"
           v-model="loginForm.password"
           :type="passwordType"
-          placeholder="Password"
+          placeholder="请输入密码"
           name="password"
           tabindex="2"
           auto-complete="on"
@@ -106,8 +106,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111',
+        username: 'qingdao',
+        password: 'zteits',
         captcha: '',
         uuid: ''
       },
@@ -135,12 +135,15 @@ export default {
       immediate: true
     }
   },
+  mounted() {
+    this.changeCode()
+  },
   methods: {
     handleLogin() {
       // 密码加密
-      this.loginForm.encryptPassword = this.$getRsaCode(
-        this.loginForm.password
-      )
+      // this.loginForm.encryptPassword = this.$getRsaCode(
+      //   this.loginForm.password
+      // )
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
@@ -149,12 +152,15 @@ export default {
             .then(data => {
               // 调用store里user.js的login方法
               // this.$router.push({ path: this.redirect || "/" });
+              // 获取用户信息
+              this.getUserInfo()
               // 获取权限列表
-              this.getRouteList(1)
+              this.getRouteList()
               this.loading = false
             })
             .catch(() => {
               this.loading = false
+              this.changeCode()
             })
         } else {
           console.log('error submit!!')
@@ -162,18 +168,30 @@ export default {
         }
       })
     },
+    // 获取用户信息
+    getUserInfo(id) {
+      // var that = this
+      this.$store
+        .dispatch('user/getInfo', id)
+        .then(res => {
+          console.log(res)
+        })
+        .catch(() => {
+          this.loading = false
+        })
+    },
     // 获取用户路由
     getRouteList(id) {
       var that = this
       this.$store
-        .dispatch('user/getRouteListFn', id)
+        .dispatch('user/getRouteListFn')
         .then(res => {
           // 存入state
-          that.$store.commit('permission/SET_ROUTES', res.obj.router)
+          that.$store.commit('permission/SET_ROUTES', res)
           // 存入缓存
-          sessionStorage.setItem('state', JSON.stringify(res.obj.router))
+          sessionStorage.setItem('state', JSON.stringify(res))
           // 转换组件对象
-          var getRouter = filterAsyncRouter(res.obj.router)
+          var getRouter = filterAsyncRouter(res)
           // 清空之前的路由信息
           resetRouter()
           that.$router.addRoutes(getRouter)
@@ -202,12 +220,9 @@ export default {
       this.loginForm.uuid = captcha_key
       this.$refs.code.setAttribute(
         'src',
-        this.$api.url.dev + '/captcha.jpg?uuid=' + captcha_key
+        process.env.VUE_APP_API_URL + '/captcha.jpg?uuid=' + captcha_key
       )
     }
-  },
-  mounted() {
-    // this.changeCode();
   }
 }
 </script>

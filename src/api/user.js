@@ -1,13 +1,13 @@
 import request from '@/utils/request'
-
+// 登录
 export function login(data) {
   return request({
-    url: 'AdminApi/Public/Login',
+    url: '/sys/login',
     method: 'post',
     data
   })
 }
-
+// 获取个人信息
 export function getInfo(token) {
   return request({
     url: 'sys/user/info',
@@ -17,11 +17,11 @@ export function getInfo(token) {
     }
   })
 }
-
-export function getRouter(id) {
+// 请求菜单
+export function getRouter() {
   return request({
-    url: '/AdminApi/Home/GetMenuJson?id=' + id,
-    method: 'get'
+    url: '/sys/menu/nav/menuList',
+    method: 'post'
   })
 }
 
