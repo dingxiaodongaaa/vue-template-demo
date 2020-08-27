@@ -1,40 +1,64 @@
 import request from '@/utils/request' // 引入请求方法
-
-export function fetchList(url, query) {
+// ========================== 语音播报模板  ==============================
+// 查询模板列表
+export function queryTemplateList(query) {
   return request({
-    url: url,
+    url: '/broad/manage/queryBroadCast',
     method: 'post',
     data: query
   })
 }
-
-export function fetchArticle(id) {
+// 新增模板
+export function createTemplate(data) {
   return request({
-    url: '/vue-element-admin/article/detail',
-    method: 'get',
-    params: { id }
-  })
-}
-
-export function fetchPv(pv) {
-  return request({
-    url: '/vue-element-admin/article/pv',
-    method: 'get',
-    params: { pv }
-  })
-}
-
-export function createArticle(data) {
-  return request({
-    url: '/vue-element-admin/article/create',
+    url: '/broad/manage/save',
     method: 'post',
     data
   })
 }
-
-export function updateArticle(data) {
+// 获取语音模板类型
+export function getsubType(data) {
   return request({
-    url: '/vue-element-admin/article/update',
+    url: '/sys/dict/selectDictList',
+    method: 'post',
+    data
+  })
+}
+// 删除模板
+export function deleteTemplate(data) {
+  return request({
+    url: '/broad/manage/delete/' + data,
+    method: 'post'
+  })
+}
+// 删除多个模板
+export function deleteSomeTemplate(data) {
+  return request({
+    url: '/broad/manage/deleteBatch',
+    method: 'post',
+    data
+  })
+}
+// 查看信息
+export function seeTemplateInfo(data) {
+  return request({
+    url: '/broad/manage/listDetail?id=' + data,
+    method: 'post'
+  })
+}
+// 修改内容
+export function updateTemplateInfo(data) {
+  return request({
+    url: '/broad/manage/update',
+    method: 'post',
+    data
+  })
+}
+// ========================== 收费规则  ==============================
+// 查询模板列表
+export function queryRulesList(data) {
+  return request({
+    url: '/park/billRules/query',
     method: 'post',
     data
   })
